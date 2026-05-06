@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { 
   Wallet, 
   ArrowUpRight, 
@@ -23,7 +23,9 @@ import {
   Sparkles,
   Bot,
   GraduationCap,
-  User
+  User,
+  ArrowRightLeft,
+  Trash2
 } from 'lucide-react';
 
 // --- FIREBASE CONFIG ---
@@ -116,6 +118,7 @@ export default function App() {
   const [accounts, setAccounts] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [budgets, setBudgets] = useState({});
+  const [lendBorrows, setLendBorrows] = useState([]);
 
   // Modals
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
@@ -157,10 +160,17 @@ export default function App() {
       setBudgets(bgts);
     });
 
+    const unsubLendBorrows = onSnapshot(collection(db, 'users', userEmail, 'lendBorrows'), (snap) => {
+      const lbs = [];
+      snap.forEach(d => lbs.push({ id: d.id, ...d.data() }));
+      setLendBorrows(lbs.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    });
+
     return () => {
       unsubAccounts();
       unsubTxs();
       unsubBudgets();
+      unsubLendBorrows();
     };
   }, [user]);
 
@@ -195,6 +205,7 @@ export default function App() {
     setAccounts([]);
     setTransactions([]);
     setBudgets({});
+    setLendBorrows([]);
   };
 
   const addTransaction = async (tx) => {
@@ -218,6 +229,49 @@ export default function App() {
   const addBudget = async (bgt) => {
     await setDoc(doc(db, 'users', user.email, 'budgets', bgt.category), { limit: bgt.limit });
     setIsBudgetModalOpen(false);
+  };
+
+  const addLendBorrow = async (lb) => {
+    const id = Math.random().toString(36).substring(2, 11);
+    
+    const tx = {
+      type: lb.type === 'lend' ? 'debit' : 'credit',
+      amount: lb.amount,
+      accountId: lb.accountId,
+      category: lb.type === 'lend' ? 'Lent Money' : 'Borrowed Money',
+      sourceDest: lb.person,
+      date: lb.date
+    };
+    const txId = Math.random().toString(36).substring(2, 11);
+    
+    await setDoc(doc(db, 'users', user.email, 'transactions', txId), tx);
+    await setDoc(doc(db, 'users', user.email, 'lendBorrows', id), lb);
+  };
+
+  const settleLendBorrow = async (id, type, amount, accountId, person) => {
+    const tx = {
+      type: type === 'lend' ? 'credit' : 'debit',
+      amount: parseFloat(amount),
+      accountId,
+      category: type === 'lend' ? 'Lend Received' : 'Borrow Returned',
+      sourceDest: person,
+      date: new Date().toISOString().split('T')[0]
+    };
+    const txId = Math.random().toString(36).substring(2, 11);
+    await setDoc(doc(db, 'users', user.email, 'transactions', txId), tx);
+    await setDoc(doc(db, 'users', user.email, 'lendBorrows', id), { status: 'settled' }, { merge: true });
+  };
+
+  const deleteTransaction = async (id) => {
+    if (window.confirm("Are you sure you want to delete this transaction?")) {
+      await deleteDoc(doc(db, 'users', user.email, 'transactions', id));
+    }
+  };
+
+  const deleteLendBorrow = async (id) => {
+    if (window.confirm("Are you sure you want to delete this record?")) {
+      await deleteDoc(doc(db, 'users', user.email, 'lendBorrows', id));
+    }
   };
 
   // --- RENDER ---
@@ -252,6 +306,7 @@ export default function App() {
           <NavItem icon={<LayoutDashboard />} label="Dashboard" isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
           <NavItem icon={<Building2 />} label="Bank Accounts" isActive={currentView === 'accounts'} onClick={() => setCurrentView('accounts')} />
           <NavItem icon={<ListOrdered />} label="Transactions" isActive={currentView === 'transactions'} onClick={() => setCurrentView('transactions')} />
+          <NavItem icon={<ArrowRightLeft />} label="Lend & Borrow" isActive={currentView === 'lendBorrow'} onClick={() => setCurrentView('lendBorrow')} />
           <NavItem icon={<Target />} label="Budgets" isActive={currentView === 'budget'} onClick={() => setCurrentView('budget')} />
           <NavItem icon={<GraduationCap />} label="On-Campus" isActive={currentView === 'onCampus'} onClick={() => setCurrentView('onCampus')} />
           <NavItem icon={<User />} label="Profile" isActive={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
@@ -311,6 +366,16 @@ export default function App() {
               transactions={transactions} 
               accounts={accounts}
               onOpenAdd={() => setIsTxModalOpen(true)}
+              onDelete={deleteTransaction}
+            />
+          )}
+          {currentView === 'lendBorrow' && (
+            <LendBorrowView 
+              lendBorrows={lendBorrows} 
+              accounts={accounts}
+              onAdd={addLendBorrow}
+              onSettle={settleLendBorrow}
+              onDelete={deleteLendBorrow}
             />
           )}
           {currentView === 'budget' && (
@@ -326,6 +391,7 @@ export default function App() {
               transactions={transactions} 
               accounts={accounts}
               onOpenAdd={() => setIsOnCampusTxModalOpen(true)}
+              onDelete={deleteTransaction}
               userTheme={userTheme}
             />
           )}
@@ -353,6 +419,7 @@ export default function App() {
         <MobileNavItem icon={<LayoutDashboard />} label="Home" isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
         <MobileNavItem icon={<Building2 />} label="Accounts" isActive={currentView === 'accounts'} onClick={() => setCurrentView('accounts')} />
         <MobileNavItem icon={<ListOrdered />} label="History" isActive={currentView === 'transactions'} onClick={() => setCurrentView('transactions')} />
+        <MobileNavItem icon={<ArrowRightLeft />} label="Lends" isActive={currentView === 'lendBorrow'} onClick={() => setCurrentView('lendBorrow')} />
         <MobileNavItem icon={<Target />} label="Budgets" isActive={currentView === 'budget'} onClick={() => setCurrentView('budget')} />
         <MobileNavItem icon={<GraduationCap />} label="Campus" isActive={currentView === 'onCampus'} onClick={() => setCurrentView('onCampus')} />
         <MobileNavItem icon={<User />} label="Profile" isActive={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
@@ -464,7 +531,7 @@ function Dashboard({ totalBalance, income, expenses, transactions, accounts, use
                     <p className="text-sm text-slate-500 font-medium">{tx.category} • {tx.date}</p>
                   </div>
                 </div>
-                <div className={`font-black text-lg ${tx.type === 'credit' ? 'text-green-600' : 'text-slate-800'}`}>
+                <div className={`font-black text-lg ${tx.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
                   {tx.type === 'credit' ? '+' : '-'}{formatCurrency(tx.amount)}
                 </div>
               </div>
@@ -562,7 +629,7 @@ function Accounts({ accounts, currentBalances, onOpenAdd }) {
   );
 }
 
-function Transactions({ transactions, accounts, onOpenAdd }) {
+function Transactions({ transactions, accounts, onOpenAdd, onDelete }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
 
@@ -650,6 +717,7 @@ function Transactions({ transactions, accounts, onOpenAdd }) {
                 <th className="py-4 px-6 text-slate-500 font-bold text-sm uppercase tracking-wider">Category</th>
                 <th className="py-4 px-6 text-slate-500 font-bold text-sm uppercase tracking-wider">Account</th>
                 <th className="py-4 px-6 text-slate-500 font-bold text-sm uppercase tracking-wider text-right">Amount</th>
+                <th className="py-4 px-6 text-slate-500 font-bold text-sm uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -663,14 +731,19 @@ function Transactions({ transactions, accounts, onOpenAdd }) {
                       <span className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-xl text-sm font-semibold">{tx.category}</span>
                     </td>
                     <td className="py-5 px-6 text-slate-500 font-medium">{acc ? acc.name : 'Unknown Account'}</td>
-                    <td className={`py-5 px-6 text-right font-black text-lg ${tx.type === 'credit' ? 'text-green-600' : 'text-slate-800'}`}>
+                    <td className={`py-5 px-6 text-right font-black text-lg ${tx.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
                       {tx.type === 'credit' ? '+' : '-'}{formatCurrency(tx.amount)}
+                    </td>
+                    <td className="py-5 px-6 text-right">
+                      <button onClick={() => onDelete(tx.id)} className="text-slate-400 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-lg">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     </td>
                   </tr>
                 )
               }) : (
                 <tr>
-                  <td colSpan="5" className="py-16 text-center text-slate-500 font-medium">No transactions found.</td>
+                  <td colSpan="6" className="py-16 text-center text-slate-500 font-medium">No transactions found.</td>
                 </tr>
               )}
             </tbody>
@@ -775,7 +848,7 @@ function Budgets({ budgets, transactions, onOpenAdd, userTheme }) {
   );
 }
 
-function OnCampus({ transactions, accounts, onOpenAdd, userTheme }) {
+function OnCampus({ transactions, accounts, onOpenAdd, onDelete, userTheme }) {
   const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(val);
   const [selectedSem, setSelectedSem] = useState('1');
   
@@ -831,8 +904,13 @@ function OnCampus({ transactions, accounts, onOpenAdd, userTheme }) {
                   <p className="font-bold text-slate-800 text-lg">{tx.sourceDest}</p>
                   <p className="text-sm text-slate-500 font-medium">{tx.category} • {tx.date}</p>
                 </div>
-                <div className={`font-black text-lg ${tx.type === 'credit' ? 'text-green-600' : 'text-slate-800'}`}>
-                  {tx.type === 'credit' ? '+' : '-'}{formatCurrency(tx.amount)}
+                <div className="flex items-center gap-4">
+                  <div className={`font-black text-lg ${tx.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
+                    {tx.type === 'credit' ? '+' : '-'}{formatCurrency(tx.amount)}
+                  </div>
+                  <button onClick={() => onDelete(tx.id)} className="text-slate-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                    <Trash2 className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             )) : (
@@ -1155,7 +1233,7 @@ function AddCampusTransactionModal({ accounts, onClose, onAdd }) {
   const [type, setType] = useState('debit');
   const [amount, setAmount] = useState('');
   const [accountId, setAccountId] = useState(accounts[0]?.id || '');
-  const [category, setCategory] = useState('On-Campus');
+  const [category, setCategory] = useState(CATEGORIES[0]);
   const [sourceDest, setSourceDest] = useState('');
   const [semester, setSemester] = useState('1');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -1193,6 +1271,13 @@ function AddCampusTransactionModal({ accounts, onClose, onAdd }) {
             <input type="text" required value={sourceDest} onChange={e => setSourceDest(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-medium transition-all" placeholder="e.g. Canteen, Library, Books" />
           </div>
 
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Category</label>
+            <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-medium transition-all">
+              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">Semester</label>
@@ -1223,6 +1308,159 @@ function AddCampusTransactionModal({ accounts, onClose, onAdd }) {
   );
 }
 
+
+function LendBorrowView({ lendBorrows, accounts, onAdd, onSettle, onDelete }) {
+  const [person, setPerson] = useState('');
+  const [amount, setAmount] = useState('');
+  const [type, setType] = useState('lend'); 
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [accountId, setAccountId] = useState(accounts[0]?.id || '');
+  
+  const [selectedAccounts, setSelectedAccounts] = useState({}); 
+
+  const handleAccountChange = (id, accId) => {
+    setSelectedAccounts(prev => ({...prev, [id]: accId}));
+  };
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    if (!person || !amount || !accountId) return;
+    onAdd({ type, person, amount: parseFloat(amount), date, status: 'active', accountId });
+    setPerson('');
+    setAmount('');
+  };
+
+  const activeLends = lendBorrows.filter(lb => lb.type === 'lend' && lb.status === 'active');
+  const activeBorrows = lendBorrows.filter(lb => lb.type === 'borrow' && lb.status === 'active');
+
+  const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(val);
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Lend & Borrow</h1>
+           <p className="text-slate-500 font-medium mt-1">Track money you owe or are owed.</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm self-start">
+          <h2 className="text-xl font-bold text-slate-800 mb-6">Add New Entry</h2>
+          <form onSubmit={handleAdd} className="space-y-4">
+            <div className="flex gap-2 p-1.5 bg-slate-100 rounded-2xl">
+              <button type="button" onClick={() => setType('lend')} className={`flex-1 py-2 rounded-xl font-bold text-sm transition-all shadow-sm ${type === 'lend' ? 'bg-white text-slate-900' : 'bg-transparent text-slate-500 shadow-none hover:text-slate-700'}`}>
+                I Lent Money
+              </button>
+              <button type="button" onClick={() => setType('borrow')} className={`flex-1 py-2 rounded-xl font-bold text-sm transition-all shadow-sm ${type === 'borrow' ? 'bg-white text-slate-900' : 'bg-transparent text-slate-500 shadow-none hover:text-slate-700'}`}>
+                I Borrowed Money
+              </button>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Person Name</label>
+              <input type="text" required value={person} onChange={e => setPerson(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium" placeholder="e.g. Rahul" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Amount</label>
+              <input type="number" step="0.01" required value={amount} onChange={e => setAmount(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold" placeholder="0.00" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Date</label>
+              <input type="date" required value={date} onChange={e => setDate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Account</label>
+              <select value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+              </select>
+            </div>
+            <button type="submit" className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl transition-all font-bold mt-2">
+              Add Record
+            </button>
+          </form>
+        </div>
+
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">Money I Lent (To Receive)</h2>
+            <div className="space-y-3">
+              {activeLends.length === 0 && <p className="text-slate-500 font-medium py-4 text-center">No active lent records.</p>}
+              {activeLends.map(lb => (
+                <div key={lb.id} className="p-4 border border-slate-100 bg-slate-50 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <p className="font-bold text-lg text-slate-800">{lb.person}</p>
+                    <p className="text-sm text-slate-500">Lent on: {lb.date}</p>
+                  </div>
+                  <div className="flex flex-col sm:items-end gap-2">
+                    <p className="font-black text-xl text-green-600">{formatCurrency(lb.amount)}</p>
+                    <div className="flex items-center gap-2">
+                      <select 
+                        value={selectedAccounts[lb.id] || ''} 
+                        onChange={e => handleAccountChange(lb.id, e.target.value)}
+                        className="text-sm bg-white border border-slate-200 py-1.5 px-2 rounded-lg font-medium"
+                      >
+                        <option value="" disabled>Select Account</option>
+                        {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                      </select>
+                      <button 
+                        onClick={() => onSettle(lb.id, 'lend', lb.amount, selectedAccounts[lb.id] || accounts[0]?.id, lb.person)}
+                        disabled={!selectedAccounts[lb.id] && !accounts[0]}
+                        className="bg-green-600 hover:bg-green-700 disabled:bg-slate-300 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition-all"
+                      >
+                        Received
+                      </button>
+                      <button onClick={() => onDelete(lb.id)} className="text-slate-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">Money I Borrowed (To Return)</h2>
+            <div className="space-y-3">
+              {activeBorrows.length === 0 && <p className="text-slate-500 font-medium py-4 text-center">No active borrowed records.</p>}
+              {activeBorrows.map(lb => (
+                <div key={lb.id} className="p-4 border border-slate-100 bg-slate-50 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <p className="font-bold text-lg text-slate-800">{lb.person}</p>
+                    <p className="text-sm text-slate-500">Borrowed on: {lb.date}</p>
+                  </div>
+                  <div className="flex flex-col sm:items-end gap-2">
+                    <p className="font-black text-xl text-red-600">{formatCurrency(lb.amount)}</p>
+                    <div className="flex items-center gap-2">
+                      <select 
+                        value={selectedAccounts[lb.id] || ''} 
+                        onChange={e => handleAccountChange(lb.id, e.target.value)}
+                        className="text-sm bg-white border border-slate-200 py-1.5 px-2 rounded-lg font-medium"
+                      >
+                        <option value="" disabled>Select Account</option>
+                        {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                      </select>
+                      <button 
+                        onClick={() => onSettle(lb.id, 'borrow', lb.amount, selectedAccounts[lb.id] || accounts[0]?.id, lb.person)}
+                        disabled={!selectedAccounts[lb.id] && !accounts[0]}
+                        className="bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition-all"
+                      >
+                        Returned
+                      </button>
+                      <button onClick={() => onDelete(lb.id)} className="text-slate-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // --- AUTH & HELPERS ---
 
