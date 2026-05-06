@@ -21,7 +21,9 @@ import {
   Loader2,
   MailCheck,
   Sparkles,
-  Bot
+  Bot,
+  GraduationCap,
+  User
 } from 'lucide-react';
 
 // --- FIREBASE CONFIG ---
@@ -70,14 +72,38 @@ const callGemini = async (prompt) => {
 const CATEGORIES = ['Food', 'Rent', 'Salary', 'Entertainment', 'Utilities', 'Transportation', 'Shopping', 'Other'];
 
 const HEROES = {
-  ironman: { id: 'ironman', name: 'Iron Man', icon: '🤖', bg: 'bg-red-600', text: 'text-white', accent: 'text-yellow-400', border: 'border-red-500', gradient: 'from-red-600 to-red-800' },
-  cap: { id: 'cap', name: 'Captain America', icon: '🛡️', bg: 'bg-blue-600', text: 'text-white', accent: 'text-red-300', border: 'border-blue-500', gradient: 'from-blue-600 to-blue-800' },
-  spidey: { id: 'spidey', name: 'Spider-Man', icon: '🕸️', bg: 'bg-red-500', text: 'text-white', accent: 'text-blue-200', border: 'border-red-400', gradient: 'from-red-500 to-blue-600' },
-  thor: { id: 'thor', name: 'Thor', icon: '⚡', bg: 'bg-slate-700', text: 'text-white', accent: 'text-yellow-300', border: 'border-slate-600', gradient: 'from-slate-600 to-slate-800' },
-  hulk: { id: 'hulk', name: 'Hulk', icon: '✊', bg: 'bg-green-600', text: 'text-white', accent: 'text-purple-300', border: 'border-green-500', gradient: 'from-green-500 to-green-700' },
-  panther: { id: 'panther', name: 'Black Panther', icon: '🐾', bg: 'bg-zinc-900', text: 'text-white', accent: 'text-purple-400', border: 'border-zinc-700', gradient: 'from-zinc-800 to-black' },
-  widow: { id: 'widow', name: 'Black Widow', icon: '🕷️', bg: 'bg-black', text: 'text-white', accent: 'text-red-500', border: 'border-zinc-800', gradient: 'from-zinc-900 to-black' },
-  strange: { id: 'strange', name: 'Doctor Strange', icon: '👁️', bg: 'bg-orange-800', text: 'text-white', accent: 'text-yellow-400', border: 'border-orange-700', gradient: 'from-orange-700 to-red-900' },
+  ironman: { id: 'ironman', name: 'Iron Man', 
+    icon: <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] p-1 object-contain"><circle cx="50" cy="50" r="45" fill="none" stroke="#94a3b8" strokeWidth="4"/><circle cx="50" cy="50" r="38" fill="none" stroke="#38bdf8" strokeWidth="6"/><circle cx="50" cy="50" r="28" fill="none" stroke="#94a3b8" strokeWidth="2"/><polygon points="50,30 67,60 33,60" fill="#e0f2fe" stroke="#38bdf8" strokeWidth="2" /></svg>, 
+    bg: 'bg-red-600', text: 'text-white', accent: 'text-yellow-400', border: 'border-red-500', gradient: 'from-red-600 to-red-800' 
+  },
+  cap: { id: 'cap', name: 'Captain America', 
+    icon: <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md p-1 object-contain"><circle cx="50" cy="50" r="48" fill="#E23636" /><circle cx="50" cy="50" r="38" fill="#ffffff" /><circle cx="50" cy="50" r="28" fill="#E23636" /><circle cx="50" cy="50" r="18" fill="#0051B5" /><polygon points="50,35 54,46 66,46 56,53 60,65 50,58 40,65 44,53 34,46 46,46" fill="#ffffff" /></svg>, 
+    bg: 'bg-blue-600', text: 'text-white', accent: 'text-red-300', border: 'border-blue-500', gradient: 'from-blue-600 to-blue-800' 
+  },
+  spidey: { id: 'spidey', name: 'Spider-Man', 
+    icon: <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md p-1 object-contain"><circle cx="50" cy="45" r="8" fill="#18181b" /><ellipse cx="50" cy="65" rx="10" ry="15" fill="#18181b" /><path d="M 45 45 Q 30 30 20 40" fill="none" stroke="#18181b" strokeWidth="3" strokeLinecap="round" /><path d="M 55 45 Q 70 30 80 40" fill="none" stroke="#18181b" strokeWidth="3" strokeLinecap="round" /><path d="M 45 50 Q 25 50 15 65" fill="none" stroke="#18181b" strokeWidth="3" strokeLinecap="round" /><path d="M 55 50 Q 75 50 85 65" fill="none" stroke="#18181b" strokeWidth="3" strokeLinecap="round" /><path d="M 45 60 Q 25 75 25 90" fill="none" stroke="#18181b" strokeWidth="3" strokeLinecap="round" /><path d="M 55 60 Q 75 75 75 90" fill="none" stroke="#18181b" strokeWidth="3" strokeLinecap="round" /><path d="M 45 70 Q 35 85 40 95" fill="none" stroke="#18181b" strokeWidth="3" strokeLinecap="round" /><path d="M 55 70 Q 65 85 60 95" fill="none" stroke="#18181b" strokeWidth="3" strokeLinecap="round" /></svg>, 
+    bg: 'bg-red-500', text: 'text-white', accent: 'text-blue-200', border: 'border-red-400', gradient: 'from-red-500 to-blue-600' 
+  },
+  thor: { id: 'thor', name: 'Thor', 
+    icon: <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md p-1 object-contain"><rect x="42" y="50" width="16" height="40" fill="#78350f" rx="2" /><rect x="25" y="15" width="50" height="35" fill="#94a3b8" rx="4" /><path d="M 25 20 L 15 25 L 15 40 L 25 45 Z" fill="#64748b" /><path d="M 75 20 L 85 25 L 85 40 L 75 45 Z" fill="#64748b" /><line x1="35" y1="25" x2="65" y2="25" stroke="#cbd5e1" strokeWidth="2" /><line x1="35" y1="35" x2="65" y2="35" stroke="#cbd5e1" strokeWidth="2" /></svg>, 
+    bg: 'bg-slate-700', text: 'text-white', accent: 'text-yellow-300', border: 'border-slate-600', gradient: 'from-slate-600 to-slate-800' 
+  },
+  hulk: { id: 'hulk', name: 'Hulk', 
+    icon: <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_8px_rgba(34,197,94,0.8)] p-1 object-contain"><circle cx="50" cy="50" r="45" fill="#14532d" stroke="#22c55e" strokeWidth="4" /><circle cx="50" cy="50" r="10" fill="#22c55e" /><path d="M 50 35 L 35 15 A 40 40 0 0 1 65 15 Z" fill="#22c55e" /><path d="M 40 55 L 15 65 A 40 40 0 0 1 15 35 Z" fill="#22c55e" /><path d="M 60 55 L 85 65 A 40 40 0 0 0 85 35 Z" fill="#22c55e" /></svg>, 
+    bg: 'bg-green-600', text: 'text-white', accent: 'text-purple-300', border: 'border-green-500', gradient: 'from-green-500 to-green-700' 
+  },
+  panther: { id: 'panther', name: 'Black Panther', 
+    icon: <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md p-1 object-contain"><path d="M 20 40 C 30 10, 70 10, 80 40 C 90 70, 50 90, 50 90 C 50 90, 10 70, 20 40 Z" fill="#18181b" stroke="#71717a" strokeWidth="2"/><path d="M 30 35 L 40 50 L 35 60 Z" fill="#d4d4d8" /><path d="M 70 35 L 60 50 L 65 60 Z" fill="#d4d4d8" /><path d="M 50 65 L 45 75 L 55 75 Z" fill="#d4d4d8" /></svg>, 
+    bg: 'bg-zinc-900', text: 'text-white', accent: 'text-purple-400', border: 'border-zinc-700', gradient: 'from-zinc-800 to-black' 
+  },
+  widow: { id: 'widow', name: 'Black Widow', 
+    icon: <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md p-1 object-contain"><circle cx="50" cy="50" r="45" fill="#18181b" stroke="#3f3f46" strokeWidth="2" /><polygon points="35,25 65,25 50,50" fill="#ef4444" /><polygon points="35,75 65,75 50,50" fill="#ef4444" /></svg>, 
+    bg: 'bg-black', text: 'text-white', accent: 'text-red-500', border: 'border-zinc-800', gradient: 'from-zinc-900 to-black' 
+  },
+  strange: { id: 'strange', name: 'Doctor Strange', 
+    icon: <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_8px_rgba(234,179,8,0.5)] p-1 object-contain"><ellipse cx="50" cy="50" rx="45" ry="30" fill="none" stroke="#ca8a04" strokeWidth="4" /><ellipse cx="50" cy="50" rx="40" ry="25" fill="none" stroke="#facc15" strokeWidth="2" /><circle cx="50" cy="50" r="15" fill="#facc15" /><circle cx="50" cy="50" r="10" fill="#22c55e" /><path d="M 10 50 Q 50 10 90 50" fill="none" stroke="#ca8a04" strokeWidth="4" /><path d="M 10 50 Q 50 90 90 50" fill="none" stroke="#ca8a04" strokeWidth="4" /></svg>, 
+    bg: 'bg-orange-800', text: 'text-white', accent: 'text-yellow-400', border: 'border-orange-700', gradient: 'from-orange-700 to-red-900' 
+  },
 };
 
 export default function App() {
@@ -95,6 +121,7 @@ export default function App() {
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [isOnCampusTxModalOpen, setIsOnCampusTxModalOpen] = useState(false);
 
   // --- FIREBASE DATA SYNC ---
   useEffect(() => {
@@ -182,6 +209,12 @@ export default function App() {
     setIsAccountModalOpen(false);
   };
 
+  const addCampusTransaction = async (tx) => {
+    const id = Math.random().toString(36).substring(2, 11);
+    await setDoc(doc(db, 'users', user.email, 'transactions', id), tx);
+    setIsOnCampusTxModalOpen(false);
+  };
+
   const addBudget = async (bgt) => {
     await setDoc(doc(db, 'users', user.email, 'budgets', bgt.category), { limit: bgt.limit });
     setIsBudgetModalOpen(false);
@@ -220,6 +253,8 @@ export default function App() {
           <NavItem icon={<Building2 />} label="Bank Accounts" isActive={currentView === 'accounts'} onClick={() => setCurrentView('accounts')} />
           <NavItem icon={<ListOrdered />} label="Transactions" isActive={currentView === 'transactions'} onClick={() => setCurrentView('transactions')} />
           <NavItem icon={<Target />} label="Budgets" isActive={currentView === 'budget'} onClick={() => setCurrentView('budget')} />
+          <NavItem icon={<GraduationCap />} label="On-Campus" isActive={currentView === 'onCampus'} onClick={() => setCurrentView('onCampus')} />
+          <NavItem icon={<User />} label="Profile" isActive={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
         </nav>
 
         <div className="mt-auto pt-6 border-t border-slate-100">
@@ -286,6 +321,24 @@ export default function App() {
               userTheme={userTheme}
             />
           )}
+          {currentView === 'onCampus' && (
+            <OnCampus 
+              transactions={transactions} 
+              accounts={accounts}
+              onOpenAdd={() => setIsOnCampusTxModalOpen(true)}
+              userTheme={userTheme}
+            />
+          )}
+          {currentView === 'profile' && (
+            <ProfileSettings 
+              user={user} 
+              onUpdateUser={(newProfile) => {
+                setUser(newProfile);
+                localStorage.setItem('financehub_user', JSON.stringify(newProfile));
+              }}
+              userTheme={userTheme}
+            />
+          )}
         </div>
       </main>
 
@@ -293,13 +346,16 @@ export default function App() {
       {isTxModalOpen && <AddTransactionModal accounts={accounts} onClose={() => setIsTxModalOpen(false)} onAdd={addTransaction} />}
       {isAccountModalOpen && <AddAccountModal onClose={() => setIsAccountModalOpen(false)} onAdd={addAccount} />}
       {isBudgetModalOpen && <AddBudgetModal onClose={() => setIsBudgetModalOpen(false)} onAdd={addBudget} />}
+      {isOnCampusTxModalOpen && <AddCampusTransactionModal accounts={accounts} onClose={() => setIsOnCampusTxModalOpen(false)} onAdd={addCampusTransaction} />}
 
       {/* Mobile Nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-3 pb-safe z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-3 pb-safe z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] overflow-x-auto">
         <MobileNavItem icon={<LayoutDashboard />} label="Home" isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
         <MobileNavItem icon={<Building2 />} label="Accounts" isActive={currentView === 'accounts'} onClick={() => setCurrentView('accounts')} />
         <MobileNavItem icon={<ListOrdered />} label="History" isActive={currentView === 'transactions'} onClick={() => setCurrentView('transactions')} />
         <MobileNavItem icon={<Target />} label="Budgets" isActive={currentView === 'budget'} onClick={() => setCurrentView('budget')} />
+        <MobileNavItem icon={<GraduationCap />} label="Campus" isActive={currentView === 'onCampus'} onClick={() => setCurrentView('onCampus')} />
+        <MobileNavItem icon={<User />} label="Profile" isActive={currentView === 'profile'} onClick={() => setCurrentView('profile')} />
       </div>
     </div>
   );
@@ -719,6 +775,203 @@ function Budgets({ budgets, transactions, onOpenAdd, userTheme }) {
   );
 }
 
+function OnCampus({ transactions, accounts, onOpenAdd, userTheme }) {
+  const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(val);
+  const [selectedSem, setSelectedSem] = useState('1');
+  
+  const semesters = ['1', '2', '3', '4', '5', '6', '7', '8'];
+  
+  const campusTxs = transactions.filter(t => t.semester === selectedSem);
+  
+  const totalSpent = campusTxs.filter(t => t.type === 'debit').reduce((sum, t) => sum + t.amount, 0);
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">On-Campus Transactions</h1>
+          <p className="text-slate-500 font-medium mt-1">Track your semester-wise expenses.</p>
+        </div>
+        <button 
+          onClick={onOpenAdd} 
+          disabled={accounts.length === 0}
+          className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:text-slate-500 text-white px-6 py-3 rounded-2xl flex items-center gap-2 transition-all font-bold shadow-lg shadow-blue-600/30"
+        >
+          <Plus className="w-5 h-5" /> Add Log
+        </button>
+      </div>
+
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        {semesters.map(sem => (
+          <button 
+            key={sem} 
+            onClick={() => setSelectedSem(sem)}
+            className={`px-6 py-2.5 rounded-xl font-bold whitespace-nowrap transition-all ${selectedSem === sem ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}`}
+          >
+            {sem}{sem === '1' ? 'st' : sem === '2' ? 'nd' : sem === '3' ? 'rd' : 'th'} Semester
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className={`lg:col-span-1 bg-gradient-to-br ${userTheme.gradient} p-8 rounded-3xl shadow-lg relative overflow-hidden group text-white h-48 flex flex-col justify-center`}>
+          <div className="absolute top-0 right-0 p-6 opacity-20 transform group-hover:scale-110 transition-transform duration-500">
+            <GraduationCap className="w-24 h-24 -mr-6 -mt-6" />
+          </div>
+          <p className="text-white/80 text-sm font-semibold mb-2 uppercase tracking-wider">Total Spent (Sem {selectedSem})</p>
+          <p className="text-4xl md:text-5xl font-black drop-shadow-md">{formatCurrency(totalSpent)}</p>
+        </div>
+
+        <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-800 mb-6">Transaction Logs</h2>
+          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+            {campusTxs.length > 0 ? campusTxs.map(tx => (
+              <div key={tx.id} className="flex justify-between items-center p-4 hover:bg-slate-50 rounded-2xl transition-colors border border-slate-100">
+                <div>
+                  <p className="font-bold text-slate-800 text-lg">{tx.sourceDest}</p>
+                  <p className="text-sm text-slate-500 font-medium">{tx.category} • {tx.date}</p>
+                </div>
+                <div className={`font-black text-lg ${tx.type === 'credit' ? 'text-green-600' : 'text-slate-800'}`}>
+                  {tx.type === 'credit' ? '+' : '-'}{formatCurrency(tx.amount)}
+                </div>
+              </div>
+            )) : (
+              <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                <GraduationCap className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+                <p className="text-slate-600 font-semibold">No logs for this semester.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileSettings({ user, onUpdateUser, userTheme }) {
+  const [name, setName] = useState(user.name);
+  const [heroId, setHeroId] = useState(user.heroId);
+  const [newPassword, setNewPassword] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setMessage('');
+    setErrorMsg('');
+    
+    try {
+      const updateData = { name, heroId };
+      if (newPassword) {
+        if (newPassword.length < 6) {
+          setErrorMsg("Password must be at least 6 characters.");
+          setIsSaving(false);
+          return;
+        }
+        updateData.password = btoa(newPassword);
+      }
+      
+      await setDoc(doc(db, 'public_users', user.email), updateData, { merge: true });
+      
+      const updatedUser = { ...user, name, heroId };
+      onUpdateUser(updatedUser);
+      setMessage("Profile updated successfully!");
+      setNewPassword('');
+    } catch (err) {
+      setErrorMsg("Failed to update profile.");
+    }
+    
+    setIsSaving(false);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Profile Settings</h1>
+          <p className="text-slate-500 font-medium mt-1">Manage your identity and security.</p>
+        </div>
+      </div>
+
+      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+        
+        {message && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-2xl flex items-center gap-3 text-sm font-bold">
+            <Sparkles className="w-5 h-5 shrink-0" /> {message}
+          </div>
+        )}
+        
+        {errorMsg && (
+           <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl flex items-center gap-3 text-sm font-bold">
+             <AlertCircle className="w-5 h-5 shrink-0" /> {errorMsg}
+           </div>
+        )}
+
+        <form onSubmit={handleSave} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Display Name</label>
+              <input 
+                type="text" required value={name} onChange={e => setName(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium" 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Email Address (Read-Only)</label>
+              <input 
+                type="email" value={user.email} disabled
+                className="w-full bg-slate-100 border border-slate-200 text-slate-500 py-3 px-4 rounded-2xl cursor-not-allowed font-medium" 
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-3">Choose your Avenger ID</label>
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+               {Object.values(HEROES).map(hero => (
+                 <div 
+                   key={hero.id} onClick={() => setHeroId(hero.id)} title={hero.name}
+                   className={`cursor-pointer rounded-2xl p-2 flex flex-col items-center justify-center gap-2 border-2 transition-all ${heroId === hero.id ? hero.border + ' bg-slate-50 scale-105 shadow-md' : 'border-transparent hover:bg-slate-50'}`}
+                 >
+                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${heroId === hero.id ? 'bg-gradient-to-br ' + hero.gradient : 'bg-slate-100'} text-white shadow-sm transition-all`}>
+                     {heroId === hero.id ? hero.icon : <div className="w-8 h-8 opacity-50 grayscale">{hero.icon}</div>}
+                   </div>
+                   <span className="text-[10px] font-bold text-slate-600 text-center truncate w-full">{hero.name}</span>
+                 </div>
+               ))}
+            </div>
+          </div>
+
+          <div className="border-t border-slate-100 pt-6">
+             <h3 className="text-lg font-bold text-slate-900 mb-4">Security</h3>
+             <div>
+               <label className="block text-sm font-bold text-slate-700 mb-2">New Password (leave blank to keep current)</label>
+               <input 
+                 type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
+                 className="w-full max-w-md bg-slate-50 border border-slate-200 text-slate-900 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium" 
+                 placeholder="••••••••" 
+               />
+             </div>
+          </div>
+
+          <div className="flex justify-end pt-4">
+            <button 
+              type="submit" 
+              disabled={isSaving}
+              className={`bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-2xl transition-all font-bold shadow-lg shadow-blue-600/30 flex items-center gap-2 ${isSaving ? 'opacity-75 cursor-wait' : ''}`}
+            >
+              {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 
 // --- MODALS ---
 
@@ -891,6 +1144,78 @@ function AddBudgetModal({ onClose, onAdd }) {
           <div className="flex gap-3 mt-8 pt-4">
             <button type="button" onClick={onClose} className="flex-1 py-3 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-2xl transition-colors font-bold">Cancel</button>
             <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-2xl transition-all font-bold shadow-lg shadow-blue-600/30">Save Budget</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function AddCampusTransactionModal({ accounts, onClose, onAdd }) {
+  const [type, setType] = useState('debit');
+  const [amount, setAmount] = useState('');
+  const [accountId, setAccountId] = useState(accounts[0]?.id || '');
+  const [category, setCategory] = useState('On-Campus');
+  const [sourceDest, setSourceDest] = useState('');
+  const [semester, setSemester] = useState('1');
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!amount || !sourceDest || !accountId) return;
+    onAdd({ type, amount: parseFloat(amount), accountId, category, sourceDest, semester, date });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+        <h2 className="text-2xl font-black text-slate-900 mb-6">Add Campus Log</h2>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="flex gap-2 p-1.5 bg-slate-100 rounded-2xl">
+            <button type="button" onClick={() => setType('debit')} className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${type === 'debit' ? 'bg-white text-slate-900' : 'bg-transparent text-slate-500 shadow-none hover:text-slate-700'}`}>
+              Expense
+            </button>
+            <button type="button" onClick={() => setType('credit')} className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${type === 'credit' ? 'bg-white text-slate-900' : 'bg-transparent text-slate-500 shadow-none hover:text-slate-700'}`}>
+              Income
+            </button>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Amount</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 font-bold text-lg">₹</span>
+              <input type="number" step="0.01" required value={amount} onChange={e => setAmount(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-3 pl-10 pr-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-bold text-lg transition-all" placeholder="0.00" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">{type === 'debit' ? 'Where did you spend it?' : 'Source of money'}</label>
+            <input type="text" required value={sourceDest} onChange={e => setSourceDest(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-medium transition-all" placeholder="e.g. Canteen, Library, Books" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Semester</label>
+              <select value={semester} onChange={e => setSemester(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-medium transition-all">
+                {['1', '2', '3', '4', '5', '6', '7', '8'].map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Date</label>
+              <input type="date" required value={date} onChange={e => setDate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-medium transition-all" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Account</label>
+            <select value={accountId} onChange={e => setAccountId(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-900 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-medium transition-all">
+              {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+            </select>
+          </div>
+
+          <div className="flex gap-3 mt-8 pt-4">
+            <button type="button" onClick={onClose} className="flex-1 py-3 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-2xl transition-colors font-bold">Cancel</button>
+            <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-2xl transition-all font-bold shadow-lg shadow-blue-600/30">Save</button>
           </div>
         </form>
       </div>
