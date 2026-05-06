@@ -43,11 +43,11 @@ const db = getFirestore(app);
 
 // --- GEMINI API HELPER ---
 const callGemini = async (prompt) => {
-  // Uses Vite environment variable, fallback to empty string
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || ""; 
+  // Uses local storage API key first, then fallback to Vite environment variable
+  const apiKey = localStorage.getItem('financehub_gemini_key') || import.meta.env.VITE_GEMINI_API_KEY || ""; 
   
   if (!apiKey) {
-    return "Please set your VITE_GEMINI_API_KEY in the .env file to enable AI insights!";
+    return "Please set your Gemini API Key in the Profile Settings to enable AI insights!";
   }
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -926,10 +926,11 @@ function OnCampus({ transactions, accounts, onOpenAdd, onDelete, userTheme }) {
   );
 }
 
-function ProfileSettings({ user, onUpdateUser, userTheme }) {
+function ProfileSettings({ user, onUpdateUser }) {
   const [name, setName] = useState(user.name);
   const [heroId, setHeroId] = useState(user.heroId);
   const [newPassword, setNewPassword] = useState('');
+  const [geminiApiKey, setGeminiApiKey] = useState(localStorage.getItem('financehub_gemini_key') || '');
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -941,6 +942,7 @@ function ProfileSettings({ user, onUpdateUser, userTheme }) {
     setErrorMsg('');
     
     try {
+      localStorage.setItem('financehub_gemini_key', geminiApiKey);
       const updateData = { name, heroId };
       if (newPassword) {
         if (newPassword.length < 6) {
@@ -1020,6 +1022,19 @@ function ProfileSettings({ user, onUpdateUser, userTheme }) {
                  </div>
                ))}
             </div>
+          </div>
+
+          <div className="border-t border-slate-100 pt-6">
+             <h3 className="text-lg font-bold text-slate-900 mb-4">Integrations</h3>
+             <div>
+               <label className="block text-sm font-bold text-slate-700 mb-2">Gemini API Key (Local Storage)</label>
+               <input 
+                 type="password" value={geminiApiKey} onChange={e => setGeminiApiKey(e.target.value)}
+                 className="w-full max-w-md bg-slate-50 border border-slate-200 text-slate-900 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium" 
+                 placeholder="AI key starts with AIzaSy..." 
+               />
+               <p className="text-xs text-slate-500 mt-2 font-medium">Used to power AI features. Stored securely on your device, never uploaded to our servers.</p>
+             </div>
           </div>
 
           <div className="border-t border-slate-100 pt-6">
