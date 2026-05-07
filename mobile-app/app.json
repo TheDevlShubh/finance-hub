@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Finance Hub",
+    "slug": "finance-hub",
+    "owner": "shubh721",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "financehub",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.devlshubh.financehub"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.devlshubh.financehub"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "updates": {
+      "url": "https://u.expo.dev/0b4789f6-567e-4c01-b78d-210d32bb5679"
+    },
+    "runtimeVersion": "1.0.0",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0b4789f6-567e-4c01-b78d-210d32bb5679"
+      }
+    }
+  }
+}

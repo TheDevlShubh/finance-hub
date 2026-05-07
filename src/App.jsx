@@ -405,6 +405,7 @@ export default function App() {
               userTheme={userTheme}
             />
           )}
+          <Footer />
         </div>
       </main>
 
@@ -1759,5 +1760,18 @@ function MobileNavItem({ icon, label, isActive, onClick }) {
       {React.cloneElement(icon, { className: 'w-6 h-6' })}
       <span className="text-[10px] font-bold">{label}</span>
     </button>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="mt-16 pt-8 border-t border-slate-100 flex flex-col items-center justify-center text-slate-400 pb-10">
+      <div className="flex items-center gap-2 font-medium">
+        <span>Developed with</span>
+        <span className="text-red-500 animate-pulse">❤️</span>
+        <span>by <span className="text-slate-900 font-black">Shubh</span></span>
+      </div>
+      <p className="text-xs mt-2 font-semibold uppercase tracking-widest opacity-50">Finance Hub v1.0 • Secure Ledger Protocol</p>
+    </footer>
   );
 }

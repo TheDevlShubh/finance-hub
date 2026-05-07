@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "0b4789f6-567e-4c01-b78d-210d32bb5679"
+      }
+    },
+    "android": {
+      "package": "com.shubh721.financehub"
+    }
+  }
+}
